@@ -1,243 +1,313 @@
-#pragma once
+#include <iostream>
+#include "BinaryTree.h" // 包含BinaryTree抽象类的头文件
 
-#include <BinaryTree.h>
-#include <LinkQueue.h>
-
-template <typename ElemType>
-class BinaryTreeNode
+template <typename T>
+struct BiNode
 {
-public:
-    ElemType data;
-    BinaryTreeNode<ElemType> *left;
-    BinaryTreeNode<ElemType> *right;
-    BinaryTreeNode<ElemType> *parent;
-
-    BinaryTreeNode(const ElemType &value = 0, BinaryTreeNode<ElemType> *p = nullptr, , BinaryTreeNode<ElemType> *l = nullptr, BinaryTreeNode<ElemType> *r = nullptr)
-        : data(value), parent(p), left(l), right(r) {}
+    T data;
+    BiNode<T> *lchild;
+    BiNode<T> *rchild;
+    BiNode<T> *parent;
 };
 
-// 具体类 LinkedBinaryTree 的定义
-template <typename NodeType, typename ElemType>
-class LinkedBinaryTree : public BinaryTree<NodeType, ElemType>
+template <typename T>
+class BiTree : public BinaryTree<T, BiNode<T>> // 继承自BinaryTree抽象类
 {
 public:
-    LinkedBinaryTree();
-    virtual ~LinkedBinaryTree();
-
-public:
-    virtual void ClearBiTree();
-    virtual bool BiTreeEmpty() const;
-    virtual int BiTreeDepth() const;
-    virtual NodeType &Root() const;
-    virtual ElemType Value(const NodeType &e) const;
-    virtual void Assign(const NodeType &e, const ElemType &value);
-    virtual NodeType &Parent(const NodeType &e) const;
-    virtual NodeType &LeftChild(const NodeType &e) const;
-    virtual NodeType &RightChild(const NodeType &e) const;
-    virtual NodeType &LeftSibling(const NodeType &e) const;
-    virtual NodeType &RightSibling(const NodeType &e) const;
-    virtual void InsertChild(const NodeType &p, int LR, const BinaryTree<NodeType, ElemType> &c);
-    virtual void DeleteChild(const NodeType &p, int LR);
-    virtual void PreOrderTraverse(void (*visit)(ElemType &));
-    virtual void InOrderTraverse(void (*visit)(ElemType &));
-    virtual void PostOrderTraverse(void (*visit)(ElemType &));
-    virtual void LevelOrderTraverse(void (*visit)(ElemType &));
+    BiTree();
+    void CreateTree();                          // 创建二叉树
+    void ClearBiTree();                         // 清空二叉树
+    BinaryTree<T, BiNode<T>> *CopyTree() const; // 复制二叉树
+    int BiTreeDepth() const;                    // 计算二叉树的深度
+    int NodeCount() const;                      // 计算二叉树的节点数
+    void InOrderTraverse() const;               // 中序遍历二叉树
+    bool BiTreeEmpty() const;                   // 判断二叉树是否为空
+    BiNode<T> *Root() const;                    // 获取二叉树的根节点
+    bool Root(T value);
+    T Value(const BiNode<T> *node) const;                                // 获取节点的值
+    void Assign(BiNode<T> *node, const T &value);                        // 设置节点的值
+    BiNode<T> *Parent(const BiNode<T> *node) const;                      // 获取节点的父节点
+    BiNode<T> *LeftChild(const BiNode<T> *node) const;                   // 获取节点的左孩子
+    BiNode<T> *RightChild(const BiNode<T> *node) const;                  // 获取节点的右孩子
+    BiNode<T> *LeftSibling(const BiNode<T> *node) const;                 // 获取节点的左兄弟
+    BiNode<T> *RightSibling(const BiNode<T> *node) const;                // 获取节点的右兄弟
+    void InsertChild(BiNode<T> *p, int LR, BinaryTree<T, BiNode<T>> *c); // 在指定节点的左子树或右子树插入一个二叉树,LR 插入的位置，0表示左子树，1表示右子树
+    void DeleteChild(BiNode<T> *p, int LR);                              // 删除指定节点的左子树或右子树,LR 删除的位置，0表示左子树，1表示右子树
 
 private:
-    NodeType *root;
+    BiNode<T> *root;
 
-private:
-    friend void ClearOneNode<ElemType>(ElemType &e);
-
-    void InOrderTraverseRecursive(BinaryTreeNode<ElemType> *node, void (*visit)(ElemType &));
-    void PreOrderTraverseRecursive(BinaryTreeNode<ElemType> *node, void (*visit)(ElemType &));
-    void PostOrderTraverseRecursive(BinaryTreeNode<ElemType> *node, void (*visit)(ElemType &));
+    void CreateBiTree(BiNode<T> *&node);                     // 递归创建二叉树
+    void Copy(const BiNode<T> *src, BiNode<T> *&dest) const; // 递归复制二叉树
+    int CalculateDepth(const BiNode<T> *node) const;         // 递归计算二叉树的深度
+    int CalculateNodeCount(const BiNode<T> *node) const;     // 递归计算二叉树的节点数
+    void InOrder(const BiNode<T> *node) const;               // 递归中序遍历二叉树
+    void DestroyBiTree(BiNode<T> *&node);                    // 递归销毁二叉树
 };
 
-// 具体类 LinkedBinaryTree 的实现
-template <typename NodeType, typename ElemType>
-LinkedBinaryTree<NodeType, ElemType>::LinkedBinaryTree()
-    : root(nullptr)
+template <typename T>
+BiTree<T>::BiTree() : root(nullptr)
 {
 }
 
-template <typename NodeType, typename ElemType>
-LinkedBinaryTree<NodeType, ElemType>::~LinkedBinaryTree()
+template <typename T>
+void BiTree<T>::CreateTree()
 {
-    this->ClearBiTree();
+    CreateBiTree(root);
 }
 
-template <typename NodeType, typename ElemType>
-void LinkedBinaryTree<NodeType, ElemType>::ClearBiTree()
+template <typename T>
+void BiTree<T>::ClearBiTree()
 {
-    this->PostOrderTraverse(ClearOneNode);
+    DestroyBiTree(root);
+    root = nullptr;
 }
 
-template <typename NodeType, typename ElemType>
-bool LinkedBinaryTree<NodeType, ElemType>::BiTreeEmpty() const
+template <typename T>
+BinaryTree<T, BiNode<T>> *BiTree<T>::CopyTree() const
 {
-    return this->root == nullptr;
+    BiTree<T> *copy = new BiTree<T>();
+    Copy(root, copy->root);
+    return copy;
 }
 
-template <typename NodeType, typename ElemType>
-int LinkedBinaryTree<NodeType, ElemType>::BiTreeDepth() const
+template <typename T>
+int BiTree<T>::BiTreeDepth() const
 {
-    // TODO: BiTreeDepth 函数的实现
+    return CalculateDepth(root);
 }
 
-template <typename NodeType, typename ElemType>
-NodeType &LinkedBinaryTree<NodeType, ElemType>::Root() const
+template <typename T>
+int BiTree<T>::NodeCount() const
 {
-    return *this->root;
+    return CalculateNodeCount(root);
 }
 
-template <typename NodeType, typename ElemType>
-ElemType LinkedBinaryTree<NodeType, ElemType>::Value(const NodeType &e) const
+template <typename T>
+void BiTree<T>::InOrderTraverse() const
 {
-    return e->data;
+    InOrder(root);
 }
 
-template <typename NodeType, typename ElemType>
-void LinkedBinaryTree<NodeType, ElemType>::Assign(const NodeType &e, const ElemType &value)
+template <typename T>
+bool BiTree<T>::BiTreeEmpty() const
 {
-    e->data = value;
+    return (root == nullptr);
 }
 
-template <typename NodeType, typename ElemType>
-NodeType &LinkedBinaryTree<NodeType, ElemType>::Parent(const NodeType &e) const
+template <typename T>
+BiNode<T> *BiTree<T>::Root() const
 {
-    return *e->parent;
+    return root;
 }
 
-template <typename NodeType, typename ElemType>
-NodeType &LinkedBinaryTree<NodeType, ElemType>::LeftChild(const NodeType &e) const
+template <typename T>
+bool BiTree<T>::Root(T value)
 {
-    return *e->left;
+    if (root == nullptr)
+    {
+        root = new BiNode<T>;
+        root->data = value;
+        root->lchild = nullptr;
+        root->rchild = nullptr;
+        root->parent = nullptr;
+        return true;
+    }
+    else
+    {
+        root->data = value;
+        return false;
+    }
 }
 
-template <typename NodeType, typename ElemType>
-NodeType &LinkedBinaryTree<NodeType, ElemType>::RightChild(const NodeType &e) const
+template <typename T>
+T BiTree<T>::Value(const BiNode<T> *node) const
 {
-    return *e->right;
+    return node->data;
 }
 
-template <typename NodeType, typename ElemType>
-NodeType &LinkedBinaryTree<NodeType, ElemType>::LeftSibling(const NodeType &e) const
+template <typename T>
+void BiTree<T>::Assign(BiNode<T> *node, const T &value)
 {
-    if (e->parent->left == 0)
+    node->data = value;
+}
+
+template <typename T>
+BiNode<T> *BiTree<T>::Parent(const BiNode<T> *node) const
+{
+    return node->parent;
+}
+
+template <typename T>
+BiNode<T> *BiTree<T>::LeftChild(const BiNode<T> *node) const
+{
+    return node->lchild;
+}
+
+template <typename T>
+BiNode<T> *BiTree<T>::RightChild(const BiNode<T> *node) const
+{
+    return node->rchild;
+}
+
+template <typename T>
+BiNode<T> *BiTree<T>::LeftSibling(const BiNode<T> *node) const
+{
+    if (node->parent == nullptr)
+        return nullptr;
+    else if (node == node->parent->lchild)
+        return nullptr;
+    else
+        return node->parent->lchild;
+}
+
+template <typename T>
+BiNode<T> *BiTree<T>::RightSibling(const BiNode<T> *node) const
+{
+    if (node->parent == nullptr)
+        return nullptr;
+    else if (node == node->parent->rchild)
+        return nullptr;
+    else
+        return node->parent->rchild;
+}
+
+template <typename T>
+void BiTree<T>::InsertChild(BiNode<T> *p, int LR, BinaryTree<T, BiNode<T>> *c)
+{
+    BiTree<T> *child = dynamic_cast<BiTree<T> *>(c);
+    if (child == nullptr)
+        return;
+
+    if (LR == 0)
+    {
+        if (p->lchild != nullptr)
+            return;
+
+        p->lchild = child->root;
+        child->root->parent = p;
+    }
+    else if (LR == 1)
+    {
+        if (p->rchild != nullptr)
+            return;
+
+        p->rchild = child->root;
+        child->root->parent = p;
+    }
+}
+
+template <typename T>
+void BiTree<T>::DeleteChild(BiNode<T> *p, int LR)
+{
+    if (LR == 0)
+    {
+        if (p->lchild == nullptr)
+            return;
+
+        DestroyBiTree(p->lchild);
+        p->lchild = nullptr;
+    }
+    else if (LR == 1)
+    {
+        if (p->rchild == nullptr)
+            return;
+
+        DestroyBiTree(p->rchild);
+        p->rchild = nullptr;
+    }
+}
+
+template <typename T>
+void BiTree<T>::CreateBiTree(BiNode<T> *&node)
+{
+    T value;
+    std::cout << "Enter value (or # for null): ";
+    std::cin >> value;
+
+    if (value == '#')
+    {
+        node = nullptr;
+    }
+    else
+    {
+        node = new BiNode<T>;
+        node->data = value;
+        node->parent = nullptr;
+        CreateBiTree(node->lchild);
+        CreateBiTree(node->rchild);
+        if (node->lchild != nullptr)
+            node->lchild->parent = node;
+        if (node->rchild != nullptr)
+            node->rchild->parent = node;
+    }
+}
+
+template <typename T>
+void BiTree<T>::Copy(const BiNode<T> *src, BiNode<T> *&dest) const
+{
+    if (src == nullptr)
+    {
+        dest = nullptr;
+    }
+    else
+    {
+        dest = new BiNode<T>;
+        dest->data = src->data;
+        dest->parent = nullptr;
+        Copy(src->lchild, dest->lchild);
+        Copy(src->rchild, dest->rchild);
+        if (dest->lchild != nullptr)
+            dest->lchild->parent = dest;
+        if (dest->rchild != nullptr)
+            dest->rchild->parent = dest;
+    }
+}
+
+template <typename T>
+int BiTree<T>::CalculateDepth(const BiNode<T> *node) const
+{
+    if (node == nullptr)
         return 0;
-    return *(e->parent->left);
+
+    int leftDepth = CalculateDepth(node->lchild);
+    int rightDepth = CalculateDepth(node->rchild);
+
+    return 1 + std::max(leftDepth, rightDepth);
 }
 
-template <typename NodeType, typename ElemType>
-NodeType &LinkedBinaryTree<NodeType, ElemType>::RightSibling(const NodeType &e) const
+template <typename T>
+int BiTree<T>::CalculateNodeCount(const BiNode<T> *node) const
 {
-    if (e->parent->right == 0)
+    if (node == nullptr)
         return 0;
-    return *(e->parent->right);
+
+    int leftCount = CalculateNodeCount(node->lchild);
+    int rightCount = CalculateNodeCount(node->rchild);
+
+    return 1 + leftCount + rightCount;
 }
 
-template <typename NodeType, typename ElemType>
-void LinkedBinaryTree<NodeType, ElemType>::InsertChild(const NodeType &p, int LR, const BinaryTree<NodeType, ElemType> &c)
+template <typename T>
+void BiTree<T>::InOrder(const BiNode<T> *node) const
 {
-    // TODO: InsertChild 函数的实现
+    if (node == nullptr)
+        return;
 
-    switch (LR) // 0 左,1 右
-    {
-    case 0:
-        /* code */
-        break;
-
-    default:
-        break;
-    }
+    InOrder(node->lchild);
+    std::cout << node->data << " ";
+    InOrder(node->rchild);
 }
 
-template <typename NodeType, typename ElemType>
-void LinkedBinaryTree<NodeType, ElemType>::DeleteChild(const NodeType &p, int LR)
+template <typename T>
+void BiTree<T>::DestroyBiTree(BiNode<T> *&node)
 {
-    // TODO: DeleteChild 函数的实现
+    if (node == nullptr)
+        return;
+
+    DestroyBiTree(node->lchild);
+    DestroyBiTree(node->rchild);
+
+    delete node;
+    node = nullptr;
 }
-
-template <typename NodeType, typename ElemType>
-void LinkedBinaryTree<NodeType, ElemType>::PreOrderTraverse(void (*visit)(ElemType &))
-{
-    /*
-    在 PreOrderTraverse 函数中进行初始化和其他必要的操作,
-    如果不用递归调用的方式,而是用栈 or 队列,
-    需要在这里初始化容器,再调用
-    */
-
-    // 调用辅助函数进行递归遍历
-    this->PreOrderTraverse(this->root, visit);
-}
-
-template <typename NodeType, typename ElemType>
-void LinkedBinaryTree<NodeType, ElemType>::InOrderTraverse(void (*visit)(ElemType &))
-{
-    /*
-    在 InOrderTraverse 函数中进行初始化或其他必要的操作,
-    如果不用递归调用的方式,而是用栈 or 队列,
-    需要在这里初始化容器,再调用
-    */
-
-    // 调用辅助函数进行递归遍历
-    this->InOrderTraverseRecursive(this->root, visit);
-}
-
-template <typename NodeType, typename ElemType>
-void LinkedBinaryTree<NodeType, ElemType>::PostOrderTraverse(void (*visit)(ElemType &))
-{
-    /*
-    在 PostOrderTraverse 函数中进行初始化或其他必要的操作,
-    如果不用递归调用的方式,而是用栈 or 队列,
-    需要在这里初始化容器,再调用
-    */
-
-    // 调用辅助函数进行递归遍历
-    this->PostOrderTraverse(this->root, visit);
-}
-
-template <typename NodeType, typename ElemType>
-void LinkedBinaryTree<NodeType, ElemType>::LevelOrderTraverse(void (*visit)(ElemType &))
-{
-    // TODO: LevelOrderTraverse 函数的实现
-}
-
-template <typename NodeType, typename ElemType>
-void LinkedBinaryTree<NodeType, ElemType>::PreOrderTraverseRecursive(BinaryTreeNode<ElemType> *node, void (*visit)(ElemType &))
-{
-    if (node != nullptr)
-    {
-        visit(node->data);                                        // 访问当前节点
-        this->PreOrderTraverseRecursive(node->leftChild, visit);  // 递归遍历左子树
-        this->PreOrderTraverseRecursive(node->rightChild, visit); // 递归遍历右子树
-    }
-}
-
-template <typename NodeType, typename ElemType>
-void LinkedBinaryTree<NodeType, ElemType>::InOrderTraverseRecursive(BinaryTreeNode<ElemType> *node, void (*visit)(ElemType &))
-{
-    if (node != nullptr)
-    {
-        this->InOrderTraverseRecursive(node->leftChild, visit);  // 递归遍历左子树
-        visit(node->data);                                       // 访问当前节点
-        this->InOrderTraverseRecursive(node->rightChild, visit); // 递归遍历右子树
-    }
-}
-
-template <typename NodeType, typename ElemType>
-void LinkedBinaryTree<NodeType, ElemType>::PostOrderTraverseRecursive(BinaryTreeNode<ElemType> *node, void (*visit)(ElemType &))
-{
-    if (node != nullptr)
-    {
-        this->PostOrderTraverseRecursive(node->leftChild, visit);  // 递归遍历左子树
-        this->PostOrderTraverseRecursive(node->rightChild, visit); // 递归遍历右子树
-        visit(node->data);                                         // 访问当前节点
-    }
-}
-template <typename ElemType>
-static void ClearOneNode(ElemType &e)
-{
-    delete &e;
-};
