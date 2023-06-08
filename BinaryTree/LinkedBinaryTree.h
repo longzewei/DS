@@ -5,6 +5,7 @@ template <typename T>
 struct BiNode
 {
     T data;
+    int weight;
     BiNode<T> *lchild;
     BiNode<T> *rchild;
     BiNode<T> *parent;
@@ -15,24 +16,24 @@ class BiTree : public BinaryTree<T, BiNode<T>> // 继承自BinaryTree抽象类
 {
 public:
     BiTree();
-    void CreateTree();                          // 创建二叉树
-    void ClearBiTree();                         // 清空二叉树
-    BinaryTree<T, BiNode<T>> *CopyTree() const; // 复制二叉树
-    int BiTreeDepth() const;                    // 计算二叉树的深度
-    int NodeCount() const;                      // 计算二叉树的节点数
-    void InOrderTraverse() const;               // 中序遍历二叉树
-    bool BiTreeEmpty() const;                   // 判断二叉树是否为空
-    BiNode<T> *Root() const;                    // 获取二叉树的根节点
-    bool Root(T value);
-    T Value(const BiNode<T> *node) const;                                // 获取节点的值
-    void Assign(BiNode<T> *node, const T &value);                        // 设置节点的值
-    BiNode<T> *Parent(const BiNode<T> *node) const;                      // 获取节点的父节点
-    BiNode<T> *LeftChild(const BiNode<T> *node) const;                   // 获取节点的左孩子
-    BiNode<T> *RightChild(const BiNode<T> *node) const;                  // 获取节点的右孩子
-    BiNode<T> *LeftSibling(const BiNode<T> *node) const;                 // 获取节点的左兄弟
-    BiNode<T> *RightSibling(const BiNode<T> *node) const;                // 获取节点的右兄弟
-    void InsertChild(BiNode<T> *p, int LR, BinaryTree<T, BiNode<T>> *c); // 在指定节点的左子树或右子树插入一个二叉树,LR 插入的位置，0表示左子树，1表示右子树
-    void DeleteChild(BiNode<T> *p, int LR);                              // 删除指定节点的左子树或右子树,LR 删除的位置，0表示左子树，1表示右子树
+    virtual void CreateTree() override;                          // 创建二叉树
+    virtual void ClearBiTree() override;                         // 清空二叉树
+    virtual BinaryTree<T, BiNode<T>> *CopyTree() const override; // 复制二叉树
+    virtual int BiTreeDepth() const override;                    // 计算二叉树的深度
+    virtual int NodeCount() const override;                      // 计算二叉树的节点数
+    virtual void InOrderTraverse() const override;               // 中序遍历二叉树
+    virtual bool BiTreeEmpty() const override;                   // 判断二叉树是否为空
+    virtual BiNode<T> *Root() const override;                    // 获取二叉树的根节点
+    virtual bool Root(T value, int weight = 0) override;
+    virtual T Value(const BiNode<T> *node) const override;                                // 获取节点的值
+    virtual void Assign(BiNode<T> *node, const T &value, int weight = 0) override;        // 设置节点的值
+    virtual BiNode<T> *Parent(const BiNode<T> *node) const override;                      // 获取节点的父节点
+    virtual BiNode<T> *LeftChild(const BiNode<T> *node) const override;                   // 获取节点的左孩子
+    virtual BiNode<T> *RightChild(const BiNode<T> *node) const override;                  // 获取节点的右孩子
+    virtual BiNode<T> *LeftSibling(const BiNode<T> *node) const override;                 // 获取节点的左兄弟
+    virtual BiNode<T> *RightSibling(const BiNode<T> *node) const override;                // 获取节点的右兄弟
+    virtual void InsertChild(BiNode<T> *p, int LR, BinaryTree<T, BiNode<T>> *c) override; // 在指定节点的左子树或右子树插入一个二叉树,LR 插入的位置，0表示左子树，1表示右子树
+    virtual void DeleteChild(BiNode<T> *p, int LR) override;                              // 删除指定节点的左子树或右子树,LR 删除的位置，0表示左子树，1表示右子树
 
 private:
     BiNode<T> *root;
@@ -102,12 +103,13 @@ BiNode<T> *BiTree<T>::Root() const
 }
 
 template <typename T>
-bool BiTree<T>::Root(T value)
+bool BiTree<T>::Root(T value, int weight)
 {
     if (root == nullptr)
     {
         root = new BiNode<T>;
         root->data = value;
+        root->weight = weight;
         root->lchild = nullptr;
         root->rchild = nullptr;
         root->parent = nullptr;
@@ -116,6 +118,7 @@ bool BiTree<T>::Root(T value)
     else
     {
         root->data = value;
+        root->weight = weight;
         return false;
     }
 }
@@ -127,9 +130,10 @@ T BiTree<T>::Value(const BiNode<T> *node) const
 }
 
 template <typename T>
-void BiTree<T>::Assign(BiNode<T> *node, const T &value)
+void BiTree<T>::Assign(BiNode<T> *node, const T &value, int weight)
 {
     node->data = value;
+    node->weight = weight;
 }
 
 template <typename T>
@@ -254,6 +258,7 @@ void BiTree<T>::Copy(const BiNode<T> *src, BiNode<T> *&dest) const
     {
         dest = new BiNode<T>;
         dest->data = src->data;
+        dest->weight = dest->weight;
         dest->parent = nullptr;
         Copy(src->lchild, dest->lchild);
         Copy(src->rchild, dest->rchild);

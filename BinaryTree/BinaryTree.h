@@ -11,9 +11,9 @@ public:
     virtual void InOrderTraverse() const = 0;
     virtual bool BiTreeEmpty() const = 0;
     virtual Node *Root() const = 0;
-    virtual bool Root(T value) = 0;
+    virtual bool Root(T value, int weight) = 0;
     virtual T Value(const Node *node) const = 0;
-    virtual void Assign(Node *node, const T &value) = 0;
+    virtual void Assign(Node *node, const T &value, int weight) = 0;
     virtual Node *Parent(const Node *node) const = 0;
     virtual Node *LeftChild(const Node *node) const = 0;
     virtual Node *RightChild(const Node *node) const = 0;
@@ -23,4 +23,3 @@ public:
     virtual void DeleteChild(Node *p, int LR) = 0;
     virtual ~BinaryTree() {}
 };
-
