@@ -32,6 +32,15 @@ int main()
     std::cout << "线性表的元素为：";
     L->TraverseList(printElem);
 
+    if(L->sort()){
+        std::cout << "排序后,线性表的元素为：";
+        L->TraverseList(printElem);
+    }
+    else{
+        std::cout << "排序错误";
+    }
+    std::cout << "\n";
+
     int e, i;
     std::cout << "请输入要获取元素的位置：";
     std::cin >> i;

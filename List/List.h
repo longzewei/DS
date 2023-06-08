@@ -40,5 +40,8 @@ public:
     virtual bool ListDelete(int i) = 0;
 
     // 纯虚函数，用于遍历线性表
-    virtual void TraverseList(void (*)(T &)) const = 0;
+    virtual void TraverseList(void (*visit)(T &)) = 0;
+
+    // 升序排序
+    virtual bool sort() { return false; };
 };

@@ -67,6 +67,8 @@
         "concepts": "cpp",
         "algorithm": "cpp",
         "queue": "cpp",
-        "list": "cpp"
+        "list": "cpp",
+        "numeric": "cpp",
+        "random": "cpp"
     }
 }

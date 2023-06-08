@@ -27,7 +27,7 @@ public:
     bool NextElem(const T &cur_e, T &next_e) const override;
     bool ListInsert(int i, const T &e) override;
     bool ListDelete(int i) override;
-    void TraverseList(void (*visit)(T &)) const override;
+    void TraverseList(void (*visit)(T &)) override;
 };
 
 template <typename T>
@@ -180,7 +180,7 @@ bool LinkedList<T>::ListDelete(int i)
 }
 
 template <typename T>
-void LinkedList<T>::TraverseList(void (*visit)(T &)) const
+void LinkedList<T>::TraverseList(void (*visit)(T &))
 {
     Node *p = this->head->next;
     while (p != nullptr)
